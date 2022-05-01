@@ -1,10 +1,10 @@
 
-from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.views.generic import CreateView, UpdateView,ListView
 from django.urls import reverse_lazy
+from usuario.utils import render_to_pdf
 from usuario.forms import RegistroForm, UserPerfil,PasswordEdit, AxesCaptchaForm
 from django.contrib.auth.views import PasswordChangeView
 from axes.utils import reset_request
@@ -14,11 +14,21 @@ import os
 import imutils
 import numpy as np
 
-def listadousuarios(request):
-	lista = serializers.serialize('json', User.objects.all(), fields=['username', 'first_name'])
-	return HttpResponse(lista, content_type='application/json')
 	
+class ListadeUsuario(ListView):
+	model = User
+	template_name = 'usuario/Usuariolista.html'
+	context_object_name = 'usuarios'
 
+class ListadeUsuarioPDF(ListView):
+	
+    def get(self, request, *args, **kwargs):
+        usuarios = User.objects.all()
+        data = {
+            'usuarios': usuarios
+        }
+        pdf = render_to_pdf('usuario/Usuariolistapdf.html',data)
+        return HttpResponse(pdf, content_type='application/pdf')
 
 class RegistroUsuario( CreateView):
 	model = User

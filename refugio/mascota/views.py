@@ -4,15 +4,22 @@ from mascota.forms import MascotaFormulario, VacunaFormulario
 from mascota.models import Mascota,Vacuna
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.core import serializers
 from django.contrib.auth.mixins import PermissionRequiredMixin
+
+from mascota.utils import render_to_pdf_Mascota
 
 
 # Create your views here.
 
-def listado(request):
-	lista = serializers.serialize('json', Mascota.objects.all().order_by('id'))
-	return HttpResponse(lista, content_type='application/json')
+class ListadeMascotaPDF(ListView):
+	
+    def get(self, request, *args, **kwargs):
+        mascotas = Mascota.objects.all()
+        data = {
+            'mascotas': mascotas
+        }
+        pdf = render_to_pdf_Mascota('mascota/mascotaListapdf.html',data)
+        return HttpResponse(pdf, content_type='application/pdf')
 
 def home (request):
     return render(request,'base/home.html')
