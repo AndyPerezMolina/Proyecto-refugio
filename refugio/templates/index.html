@@ -1,0 +1,37 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}
+	Iniciar Sesión
+{% endblock %}
+{% block navbar%}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+	<a class="navbar-brand" href="{% url 'mascota_lista_invitado' %}">Mascotas</a>
+	<a class="navbar-brand" href="{% url 'usuario_registrar' %}">Registrar usuario</a>
+	
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01"
+		aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+
+</nav>
+{% endblock %}
+{% block content %}
+
+<div style="text-align: center;">
+	<center>
+		<img src="{% static 'img/adop.jpg' %}" width="520" height="320" >
+	</center>
+
+    <h2>Bienvenido Al Refugio de Mascotas</h2>
+	
+	<h2>Para iniciar sesión debe validar su rostro</h2>
+    <a class="btn btn-secondary" href="{% url 'validar_rostro' %}">Validar Rostro</a>
+	
+</div>
+{% endblock %}
+
+{% block footer %}
+<a href="http://{{ request.get_host }}/admin">Ir al Administrador de Django</a>
+<br>
+{% endblock %}
