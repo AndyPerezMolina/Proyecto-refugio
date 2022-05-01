@@ -58,3 +58,123 @@ def locked_out(request):
     return render(request, 'base/bloqueo.html', {'form': form})
 
 
+def RegistroCaras(request):
+    
+    nombre = User.objects.all().last()
+    contexto = {'user': nombre}
+    print("ultimo usuario::  ",nombre)
+    
+    personName =  str(nombre)
+    
+    dataPath = 'static/imgperfil/Data'#Cambia a la ruta donde hayas almacenado Data
+    personPath = dataPath + '/' + personName
+    if not os.path.exists(personPath):
+        print('Carpeta creada: ',personPath)
+        os.makedirs(personPath)
+    cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+    
+    faceClassif = cv2.CascadeClassifier(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
+    count = 0
+
+    while True:
+        ret, frame = cap.read()
+        if ret == False: break
+        frame =  imutils.resize(frame, width=640)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        auxFrame = frame.copy()
+    
+        faces = faceClassif.detectMultiScale(gray,1.3,5)
+    
+        for (x,y,w,h) in faces:
+            cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
+            rostro = auxFrame[y:y+h,x:x+w]
+            rostro = cv2.resize(rostro,(150,150),interpolation=cv2.INTER_CUBIC)
+            cv2.imwrite(personPath + '/rostro_{}.jpg'.format(count),rostro)
+            count = count + 1
+        cv2.imshow('frame',frame)
+    
+        k =  cv2.waitKey(1)
+        if k == 27 or count >= 300:
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+
+    peopleList = os.listdir(dataPath)
+    print('Lista de personas: ', peopleList)
+    labels = []
+    facesData = []
+    label = 0
+    for nameDir in peopleList:
+        personPath = dataPath + '/' + nameDir
+        print('Leyendo las imágenes')
+        for fileName in os.listdir(personPath):
+            #print('Rostros: ', nameDir + '/' + fileName)
+            labels.append(label)
+            facesData.append(cv2.imread(personPath+'/'+fileName,0))
+            image = cv2.imread(personPath+'/'+fileName,0)
+        label = label + 1
+
+
+    face_recognizer = cv2.face.EigenFaceRecognizer_create()
+    print("Entrenando...")
+    face_recognizer.train(facesData, np.array(labels))
+
+    face_recognizer.write('modeloEigenFace.xml')
+    print("Modelo almacenado...")
+    return render(request, 'usuario/caras.html',contexto)
+
+
+def ValidarCara(request):
+    
+    dataPath = 'static/imgperfil/Data'#Cambia a la ruta donde hayas almacenado Data
+    imagePaths = os.listdir(dataPath)
+    print('imagePaths =', imagePaths)
+
+    face_recognizer = cv2.face.EigenFaceRecognizer_create()
+
+    face_recognizer.read('modeloEigenFace.xml')
+
+    
+    nombreVentana = "camara"
+    cv2.namedWindow(nombreVentana)
+    cap = cv2.VideoCapture(0)
+
+
+
+    faceClassif = cv2.CascadeClassifier(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
+    while True:
+        ret,frame = cap.read()
+        if ret == False: 
+            break
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        auxFrame = gray.copy()
+        faces = faceClassif.detectMultiScale(gray,1.3,5)
+        for (x,y,w,h) in faces:
+            rostro = auxFrame[y:y+h,x:x+w]
+            rostro = cv2.resize(rostro,(150,150),interpolation= cv2.INTER_CUBIC)
+            result = face_recognizer.predict(rostro)
+            cv2.putText(frame,'{}'.format(result),(x,y-5),1,1.3,(255,255,0),1,cv2.LINE_AA)
+        
+        # EigenFaces
+            if result[1] < 4700:
+                cv2.putText(frame,'{}'.format(imagePaths[result[0]]),(x,y-25),2,1.1,(0,255,0),1,cv2.LINE_AA)
+                cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
+                print (imagePaths[result[0]])
+                nombre = str(imagePaths[result[0]])
+                contexto = {'user': nombre}
+                print("rostro detectado exitoso")
+                return render(request, 'usuario/rostro_validado.html',contexto)
+            else:
+                cv2.putText(frame,'Desconocido',(x,y-20),2,0.8,(0,0,255),1,cv2.LINE_AA)
+                cv2.rectangle(frame, (x,y),(x+w,y+h),(0,0,255),2)
+                nombre = "Desconocido"
+                contexto = {'user': nombre}
+                return render(request, 'usuario/rostro_invalido.html',contexto) 
+        cv2.imshow(nombreVentana,frame)
+        k = cv2.waitKey(1)
+        if k == 27 or not cv2.getWindowProperty(nombreVentana, cv2.WND_PROP_VISIBLE):
+            break
+
+    cap.release()
+
+    cv2.destroyAllWindows(nombreVentana)
