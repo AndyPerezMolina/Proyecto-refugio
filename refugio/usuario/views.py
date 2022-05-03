@@ -104,7 +104,7 @@ def RegistroCaras(request):
         cv2.imshow('frame',frame)
     
         k =  cv2.waitKey(1)
-        if k == 27 or count >= 300:
+        if k == 27 or count >= 100:
             break
     cap.release()
     cv2.destroyAllWindows()
@@ -166,7 +166,7 @@ def ValidarCara(request):
             cv2.putText(frame,'{}'.format(result),(x,y-5),1,1.3,(255,255,0),1,cv2.LINE_AA)
         
         # EigenFaces
-            if result[1] < 4700:
+            if result[1] < 4600:
                 cv2.putText(frame,'{}'.format(imagePaths[result[0]]),(x,y-25),2,1.1,(0,255,0),1,cv2.LINE_AA)
                 cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
                 print (imagePaths[result[0]])
