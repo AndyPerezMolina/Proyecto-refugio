@@ -3,20 +3,29 @@ version: "3"
 services:
   db_postgres:
     image: postgres:12
+    environment:
+      - POSTGRES_DB=apprefugio
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes: 
       - postgres_data:/var/lib/postgresql/data
 
   django_app: 
     build: .
+    environment:
+      - DB_HOST=db
+      - DB_NAME=apprefugio
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
     volumes:
-      - static:/code/static
       - .:/code
+      - static:/code/static
       - Data:/code/refugio/static/imgperfil  
     depends_on: 
       - db_postgres
 
   nginx:
-    image: nginx:1.13
+    image: nginx:1.20
     ports:
       - 8000:80
     volumes:
