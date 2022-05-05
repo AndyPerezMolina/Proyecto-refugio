@@ -18,20 +18,57 @@
 {% endblock %}
 {% block content %}
 
-<div style="text-align: center;">
-	<center>
-		<img src="{% static 'img/adop.jpg' %}" width="520" height="320" >
-	</center>
+<br>
+<h1>Iniciar sesión - Login</h1>
 
-    <h2>Bienvenido Al Refugio de Mascotas</h2>
+<form method="post">
+	{% csrf_token %}
+	<div class="row">
+    	<div class="col-md-8 col-md-offset-3">
+    		<div class="form-group">
+        		<label for="username">Nombre de usuario:</label>
+        		<input class="form-control" type="text" name="username">
+    	   </div>
+        </div>
+    </div>   
+    <div class="row">
+    	<div class="col-md-8 col-md-offset-3">
+    		<div class="form-group">
+        		<label for="username">Contraseña:</label>
+        		<input class="form-control" type="password" name="password">
+    	   </div>
+        </div>
+    </div>
+
+    <div class="row">
+    	<div class="col-md-8 col-md-offset-3">
+    		<div class="form-group">
+                <a href="{% url 'password_reset' %}">Olvidé mi contraseña</a>
+        		<input class="btn btn-primary" type="submit" value="Ingresar">
+    	   </div>
+        </div>
+    </div>
 	
-	<h2>Para iniciar sesión debe validar su rostro</h2>
-    <a class="btn btn-secondary" href="{% url 'validar_rostro' %}">Validar Rostro</a>
+	{% if form.errors %}
+        <div class="col-12 register-field">
+            <div class="alert alert-block alert-danger">
+                <ul>
+                    <li> Usuario Incorrecto o No existe
+                    </li>
+					<li> Contraseña invalida
+                    </li>
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+
 	
-</div>
+</form>
+
+
 {% endblock %}
 
 {% block footer %}
-<a href="http://{{ request.get_host }}/admin">Ir al Administrador de Django</a>
+<a href="http://localhost:8000/admin">Ir al Administrador de Django</a>
 <br>
 {% endblock %}

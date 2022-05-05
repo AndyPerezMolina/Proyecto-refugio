@@ -9,10 +9,10 @@ from usuario.forms import RegistroForm, UserPerfil,PasswordEdit, AxesCaptchaForm
 from django.contrib.auth.views import PasswordChangeView
 from axes.utils import reset_request
 
-import cv2
-import os
-import imutils
-import numpy as np
+#import cv2
+#import os
+#import imutils
+#import numpy as np
 
 	
 class ListadeUsuario(ListView):
@@ -34,7 +34,7 @@ class RegistroUsuario( CreateView):
 	model = User
 	template_name = "usuario/usuarioRegistro.html"
 	form_class = RegistroForm
-	success_url = reverse_lazy('registrar_rostro')
+	success_url = reverse_lazy('login')
 
 class UsuarioPerfil(ListView):
 	model = User
@@ -67,7 +67,7 @@ def locked_out(request):
 
     return render(request, 'base/bloqueo.html', {'form': form})
 
-
+"""
 def RegistroCaras(request):
     
     nombre = User.objects.all().last()
@@ -188,3 +188,4 @@ def ValidarCara(request):
     cap.release()
 
     cv2.destroyAllWindows(nombreVentana)
+"""

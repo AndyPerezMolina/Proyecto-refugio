@@ -1,16 +1,12 @@
 FROM python:3.9
 
 ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE=1
+RUN mkdir /code 
 
-RUN mkdir /refugio 
-
-WORKDIR /refugio
-RUN apt-get update && apt-get install -y python3-opencv
-RUN pip install opencv-python
-
-COPY requirements.txt /refugio/ 
+WORKDIR /code
+COPY . /code/
 
 RUN pip install -r requirements.txt
 
-COPY . /refugio/
+
+CMD ["gunicorn", "-c", "config/gunicorn/conf.py", "--bind", ":8000", "--chdir", "refugio", "refugio.wsgi:application"]
